@@ -20,10 +20,25 @@ app.get("/todos", (req, res) => {
     });
 });
 
+app.delete("/todos", (req, res) => {
+    let id = req.body.id;
+    con.connect(function(err){
+        let sql = `DELETE FROM tortillas WHERE id=${id}`;
+        con.query(sql, function(error, result, fields){
+            if(!result){
+                res.status(400).json({
+                    "error": true,
+                    "message": error
+                });
+            } else {
+                res.send({'status': '1'})
+            }
+        });
+    });
+});
+
 app.post("/todos", (req, res) => {
     let body = req.body;
-    console.log(body);
-    
     con.connect(function(err){        
         let sql = `INSERT INTO \`tortillas\` (userid, content, time) VALUES ('${body.userid}', '${body.content}', ${body.time})`;
         con.query(sql, function(error, result, fields){
