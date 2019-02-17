@@ -40,12 +40,12 @@ app.delete("/todos", (req, res) => {
 app.post("/todos", (req, res) => {
     let body = req.body;
     con.connect(function(err){        
-        let sql = `INSERT INTO \`tortillas\` (userid, content, time) VALUES ('${body.userid}', '${body.content}', ${body.time})`;
+        let sql = `INSERT INTO \`tortillas\` (userid, content, time) VALUES ('${body.userid}', '${body.content}', '${body.time}')`;
         con.query(sql, function(error, result, fields){
             if(!result){
                 res.status(400).json({
-                    "error": "Error Occurred",
-                    "status": '0'
+                    "error": true,
+                    "message": error
                 });
             } else {
                 res.send({'status': '1'})
