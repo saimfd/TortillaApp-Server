@@ -13,10 +13,28 @@ var con = mysql.createConnection({
 
 app.get("/todos", (req, res) => {
     con.connect(function(err){
-        if(err) throw err;
         let sql = "SELECT * FROM tortillas";
         con.query(sql, function(error, result, fields){
             res.send(result);
+        });
+    });
+});
+
+app.post("/todos", (req, res) => {
+    let body = req.body;
+    console.log(body);
+    
+    con.connect(function(err){        
+        let sql = `INSERT INTO \`tortillas\` (userid, content, time) VALUES ('${body.userid}', '${body.content}', ${body.time})`;
+        con.query(sql, function(error, result, fields){
+            if(!result){
+                res.status(400).json({
+                    "error": "Error Occurred",
+                    "status": '0'
+                });
+            } else {
+                res.send({'status': '1'})
+            }
         });
     });
 });
