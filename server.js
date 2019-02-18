@@ -68,6 +68,28 @@ app.post("/auth/signup", (req, res) => {
     });
 });
 
+app.post('/auth/login', (req, res) => {
+    let username = req.body.username;
+    let password = req.body.password;
+    con.connect((err) => {
+        let sql = `SELECT * FROM users WHERE username='${username}'`;
+        con.query(sql, (err, result, fields) => {
+            if(result.length > 0){
+                if(bcrypt.compareSync(password, result[0].password)){
+                    res.json(200, {
+                        message: "User Logged in."
+                    })
+                } else {
+                    res.json(400, {
+                        error: true,
+                        message: "Wrong Username/Password"
+                    })
+                }
+            }
+        });
+    })
+});
+
 app.post("/todos", (req, res) => {
     let body = req.body;
     con.connect(function(err){        
