@@ -1,6 +1,7 @@
 const express = require("express")
 const mysql = require("mysql")
 const bodyParser = require("body-parser")
+const bcrypt = require('bcrypt')
 const app = express()
 var port = 1000
 app.use(bodyParser.json());
@@ -32,6 +33,36 @@ app.delete("/todos", (req, res) => {
                 });
             } else {
                 res.send({'status': '1'})
+            }
+        });
+    });
+});
+
+app.post("/auth/signup", (req, res) => {
+    let username = req.body.username;
+    let password = bcrypt.hashSync(req.body.password, 10);
+    let datenow = new Date().toISOString().slice(0, 19).replace('T', ' ');;
+    con.connect((err) => {
+        let sql = `SELECT * FROM users WHERE username='${username}'`;
+        con.query(sql, (error, result, fields) => {
+            if(result.length > 0){
+                res.status(200).json({
+                    message: "User Already Exists."
+                });
+            } else {
+                let sql = `INSERT INTO users (username, password, created_at) VALUES('${username}', '${password}', '${datenow}')`;
+                con.query(sql, (error, result, fields) => {
+                    if(error){
+                        res.status(400).json({
+                            error: true,
+                            message: error
+                        })
+                    } else {
+                        res.json({
+                            message: "User Added Successfully."
+                        });
+                    }
+                });
             }
         });
     });
