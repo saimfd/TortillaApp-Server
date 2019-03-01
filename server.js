@@ -2,9 +2,14 @@ const express = require("express")
 const mysql = require("mysql")
 const bodyParser = require("body-parser")
 const bcrypt = require('bcrypt')
+const dotenv = require("dotenv")
+const jwt = require('jsonwebtoken');
+const expressJwt = require('express-jwt');
 const app = express()
 var port = 1000
 app.use(bodyParser.json());
+dotenv.config();
+var secret = process.env.JWT_SECRET;
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -76,8 +81,14 @@ app.post('/auth/login', (req, res) => {
         con.query(sql, (err, result, fields) => {
             if(result.length > 0){
                 if(bcrypt.compareSync(password, result[0].password)){
+                    var token = jwt.sign({
+                        userID: username
+                    }, secret, {expiresIn: '2h'});
+                    console.log(token);
+                    
                     res.json(200, {
-                        message: "User Logged in."
+                        message: "User Logged in.",
+                        token: token
                     })
                 } else {
                     res.json(400, {
@@ -87,7 +98,9 @@ app.post('/auth/login', (req, res) => {
                 }
             }
         });
-    })
+    });
+    
+    
 });
 
 app.post("/todos", (req, res) => {
