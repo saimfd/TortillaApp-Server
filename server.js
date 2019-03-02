@@ -18,9 +18,13 @@ var con = mysql.createConnection({
 })
 
 app.get("/todos", (req, res) => {
+    username = req.query.username;
     con.connect(function(err){
-        let sql = "SELECT * FROM tortillas";
+        let sql = `SELECT * FROM tortillas WHERE userid='${username}'`;
         con.query(sql, function(error, result, fields){
+            if(error){
+                res.send(error);
+            }
             res.send(result);
         });
     });
@@ -63,7 +67,7 @@ app.post("/auth/signup", (req, res) => {
                             message: error
                         })
                     } else {
-                        res.json({
+                        res.status(200).json({
                             message: "User Added Successfully."
                         });
                     }
@@ -84,8 +88,6 @@ app.post('/auth/login', (req, res) => {
                     var token = jwt.sign({
                         userID: username
                     }, secret, {expiresIn: '2h'});
-                    console.log(token);
-                    
                     res.json(200, {
                         message: "User Logged in.",
                         token: token
@@ -99,8 +101,18 @@ app.post('/auth/login', (req, res) => {
             }
         });
     });
-    
-    
+});
+
+app.get('/users', (req, res) => {
+    let username =  req.query.username;
+    con.connect(function(err){
+        let sql = `SELECT * FROM users WHERE username='${username}'`;
+        con.query(sql, function(error, result, fields){
+            res.json({
+                isAvailable: result.length
+            })
+        });
+    });
 });
 
 app.post("/todos", (req, res) => {
